@@ -51,35 +51,34 @@ function draw() {
 
     noStroke();
 
-// 石头主体
-fill("#fdf3f3ff");
-noStroke();
-circle(650, 365, 130);
 
-// 月亮阴影
-fill("rgba(180, 160, 170, 0.35)");
-noStroke();
+    fill("#fdf3f3ff");
+    noStroke();
+    circle(650, 365, 130);
 
-beginShape();
 
-// 起点：圆右边中间
-vertex(715, 365);
+    fill("rgba(180, 160, 170, 0.35)");
+    noStroke();
 
-// 这条弧线往里面鼓一点，终点到圆下边中间
-bezierVertex(
-  705, 395,   // 控制点1：从右边往下弯
-  680, 425,   // 控制点2：让弧度更饱满
-  650, 430    // 终点：圆下边中间
-);
+    beginShape();
 
-// 用圆外侧边缘闭合，形成阴影区域
-bezierVertex(
-  680, 430,
-  715, 400,
-  715, 365
-);
 
-endShape(CLOSE);
+    vertex(715, 365);
+
+
+    bezierVertex(
+    705, 395,   
+    680, 425,   
+    650, 430   
+    );
+
+    bezierVertex(
+    680, 430,
+    715, 400,
+    715, 365
+    );
+
+    endShape(CLOSE);
     
     angle = lerp(angle, targetAngle, 0.01);
     if (abs(angle - targetAngle) < 0.01 && first) {
@@ -101,7 +100,7 @@ function drawText() {
         text("Question Start Now!!!", 600, 100);
 
         if (alpha < 255) {
-            alpha += 1; // 数字越小，出现越慢
+            alpha += 1; 
         }
     } else {
         fill(138, 30, 240, alpha);
@@ -220,18 +219,18 @@ function drawItems(){
 function mouseOnBottle(item, checkX, checkY) {
     let s = item.scale;
 
-    // 把鼠标坐标转换成 bottle 自己的局部坐标
+    
     let localMouseX = (mouseX - checkX) / s;
     let localMouseY = (mouseY - checkY) / s;
 
-    // 区域 1：瓶口 / 瓶颈
+    
     let onNeck =
         localMouseX > 0 &&
         localMouseX < 100 &&
         localMouseY > -15 &&
         localMouseY < 65;
 
-    // 区域 2：瓶身
+    
     let onBody =
         localMouseX > -75 &&
         localMouseX < 190 &&
@@ -271,13 +270,13 @@ function mousePressed() {
             draggingItem = item;
             offsetX = mouseX - checkX;
             offsetY = mouseY - checkY;
-            // 如果原来在左边，拿起来就减左边
+            
             if (item.left) {
                 left -= item.weight;
                 item.left = false;
             }
 
-            // 如果原来在右边，拿起来就减右边
+            
             if (item.right) {
                 right -= item.weight;
                 item.right = false;
@@ -337,15 +336,15 @@ function drawStick() {
     rectMode(CENTER);
     noStroke();
 
-    // 主体
+    
     fill("#e59f35");
     rect(0, 0, 680, 30, 30);
 
-    // 上方高光
+
     fill(255, 255, 255, 60);
     rect(0, -8, 660, 6, 6);
 
-    // 下方阴影
+
     fill(0, 0, 0, 50);
     rect(0, 10, 660, 6, 6);
 
