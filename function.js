@@ -15,9 +15,10 @@ let x = 800;
 let y = 100;
 let offsetX = 0;
 let offsetY = 0;
-let alpha = 255;
+let alpha = 0;
 let allSet = false;
-let color = ["rgba(196, 166, 48, 0.81)", "rgba(206, 46, 46, 0.54)", "rgba(37, 207, 153, 0.38)"]
+let startAnimation = true;
+let color = ["rgba(237, 207, 131, 1)", "rgba(237, 207, 131, 1)"]
 function preload(){
     aLie = loadImage("img/aLie.png");
     aMess = loadImage("img/aMess.png");
@@ -27,8 +28,8 @@ function preload(){
 function setup() {
     createCanvas(windowWidth, windowHeight);
     pixelDensity(window.devicePixelRatio);
-    items.push({func: drawBottle, x:40, y:480, realX:40, realY:480, scale:0.7, weight:8, onStick:false, left: false, right:false});
-    items.push({func: drawBottle, x:900, y:510, realX:900, realY:510, scale:0.7, weight:8, onStick:false, left: false, right:false});
+    items.push({func: drawStone, x:40, y:480, realX:40, realY:480, scale:0.7, weight:8, onStick:false, left: false, right:false, type:"big", r: 0});
+    items.push({func: drawStone, x:900, y:510, realX:900, realY:510, scale:0.7, weight:8, onStick:false, left: false, right:false, type: "small", r: 0});
     
     waveY = height / 1.2 + 80;
 }
@@ -36,7 +37,7 @@ function setup() {
 function draw() {
     // draw sky
     // fill("rgba(138, 30, 240, 1)")
-    drawText();
+    drawStartAnimation();
     background("#1d81f285");
     updateBalanceAngle(left, right);
     fill("#12bafc14");
@@ -90,69 +91,70 @@ function draw() {
     
 }
 
-function drawText() {
-    if (allSet) {
-        fill(138, 30, 240, alpha);
-        noStroke();
-        textSize(60);
-        textAlign(CENTER, CENTER);
-        textFont("fantasy");
-        text("Question Start Now!!!", 600, 100);
+function drawQuestion(){
 
-        if (alpha < 255) {
-            alpha += 1; 
-        }
+}
+function drawStartAnimation() {
+    fill(138, 30, 240, alpha);
+    noStroke();
+    textSize(60);
+    text
+    textAlign(CENTER, CENTER);
+    textFont("fantasy");
+    textStyle(BOLD);
+    text("The Weight of What Was Left Unsaid", 600, 100);
+
+    if (alpha < 255 && startAnimation) {
+        alpha += 1; 
     } else {
-        fill(138, 30, 240, alpha);
-        noStroke();
-        textSize(60);
-        textAlign(CENTER, CENTER);
-        textFont("fantasy");
-        text("Find All The Bottle First", 600, 100);
-
-        if (alpha > 0) {
-            alpha -= 1;
-        }
+        startAnimation = false;
+    }
+    
+    if (alpha > 0 && !startAnimation) {
+        alpha -= 1; 
     }
 }
-function drawBottle(x, y, s) {
+function drawStone(x, y, s, type, r) {
     push();
-    // fill("rgba(218, 190, 62, 0.51)")
     translate(x, y);
-    scale(s);   
+    rotate(r);
+    scale(s);
+    
+    stroke("rgba(120, 110, 100, 0.85)");
+    strokeWeight(3);
 
     beginShape();
 
-    stroke("rgba(247, 191, 36, 0.68)");
-    strokeWeight(3);
-    vertex(0, 0);
-    bezierVertex(20, 20, 0, 60, 0, 60);
-    bezierVertex(-20, 70, -30, 70, -40, 80);
-    bezierVertex(-75, 105, -75, 175, -30, 205);
-
-    bezierVertex(20, 200, 80, 200, 145, 200);
-
-    bezierVertex(190, 175, 190, 105, 145, 80);
-    bezierVertex(130, 70, 120, 70, 100, 60);
-    bezierVertex(100, 60, 80, 20, 100, 0);
-
-    bezierVertex(70, -10, 30, -10, 0, 0);
+    if (type === "big") {
+        
+        vertex(0, 10);
+        bezierVertex(20, -15, 55, -28, 95, -26);
+        bezierVertex(150, -24, 230, -22, 310, -24);
+        bezierVertex(350, -24, 395, -10, 410, 15);
+        bezierVertex(420, 42, 360, 62, 285, 68);
+        bezierVertex(200, 74, 90, 68, 25, 52);
+        bezierVertex(-8, 40, -10, 22, 0, 10);
+    } else if (type === "medium") {
+        
+        vertex(0, 8);
+        bezierVertex(15, -12, 42, -22, 72, -21);
+        bezierVertex(115, -20, 170, -18, 225, -19);
+        bezierVertex(255, -19, 290, -8, 302, 12);
+        bezierVertex(312, 34, 272, 52, 215, 58);
+        bezierVertex(145, 64, 72, 58, 18, 45);
+        bezierVertex(-6, 34, -7, 18, 0, 8);
+    } else if (type === "small") {
+        
+        vertex(0, 6);
+        bezierVertex(10, -8, 28, -16, 48, -15);
+        bezierVertex(78, -14, 112, -13, 145, -14);
+        bezierVertex(165, -14, 188, -6, 196, 8);
+        bezierVertex(202, 24, 178, 38, 140, 43);
+        bezierVertex(96, 48, 46, 44, 12, 34);
+        bezierVertex(-4, 25, -5, 13, 0, 6);
+    }
 
     endShape(CLOSE);
-    noFill();
-    stroke("rgba(247, 191, 36, 0.8)");
-    strokeWeight(3);
-    ellipse(50, 5, 95, 24);
-    stroke("rgba(255,255,255,0.4)");
-    strokeWeight(5);
-    noFill();
-
-    bezier(
-        -10, 80,
-        -25, 110,
-        -20, 150,
-        -15, 185
-    );
     pop();
 }
 function updateBalanceAngle(left, right){
@@ -180,7 +182,7 @@ function updateBalanceAngle(left, right){
 function isOnStick(item){
 
     if(
-        item.x > 240 &&
+        item.x > 100 &&
         item.x < 330 + 680 &&
         item.y < 270
     ){
@@ -199,7 +201,7 @@ function isOnStick(item){
 function drawItems(){
     let count = 0;
     for(let item of items){
-        fill(color[count])
+        fill(color[count]);
         if(item.onStick){
 
             let localX = item.x - 670;
@@ -208,10 +210,10 @@ function drawItems(){
             let drawX = 670 + localX * cos(angle) - localY * sin(angle);
             let drawY = 285 + localX * sin(angle) + localY * cos(angle);
             
-            item.func(drawX, drawY, item.scale);
+            item.func(drawX, drawY, item.scale, item.type, angle);
 
         } else {
-            item.func(item.x, item.y, item.scale);
+            item.func(item.x, item.y, item.scale, item.type, 0);
         }
         count++;
     }
@@ -295,7 +297,7 @@ function mouseReleased(){
     
     if(draggingItem){
         if(isOnStick(draggingItem)){
-            draggingItem.y = 130;
+            draggingItem.y = 250;
             if (draggingItem.x < 670 && draggingItem.left === false) {
                 left += draggingItem.weight;
                 draggingItem.left = true;
@@ -382,36 +384,36 @@ function drawRock(){
 
 
 function drawSea() {
-  let seaTop = height / 1.2;
+    let seaTop = height / 1.2;
 
-  fill("#7fdcff");
-  stroke("#ffffff");
-  strokeWeight(3);
+    fill("#7fdcff");
+    stroke("#ffffff");
+    strokeWeight(3);
 
-  beginShape();
+    beginShape();
 
-  vertex(0, height);
+    vertex(0, height);
 
-  for (let x = 0; x <= width; x += 40) {
-    let wave = map(
-      noise(x * 0.01, frameCount * 0.02),
-      0,
-      1,
-      -30,
-      30
-    );
+    for (let x = 0; x <= width; x += 40) {
+        let wave = map(
+            noise(x * 0.01, frameCount * 0.02),
+            0,
+            1,
+            -30,
+            30
+        );
 
-    curveVertex(x, waveY + wave);
-  }
+        curveVertex(x, waveY + wave);
+    }
 
-  vertex(width, height);
-  vertex(0, height);
+    vertex(width, height);
+    vertex(0, height);
 
-  endShape(CLOSE);
+    endShape(CLOSE);
 
-  waveY -= 0.1;
+    waveY -= 0.1;
 
-  if (waveY < seaTop) {
-    waveY = height / 1.2+ 80;
-  }
+    if (waveY < seaTop) {
+        waveY = height / 1.2+ 80;
+    }
 }
