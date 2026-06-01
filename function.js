@@ -497,32 +497,32 @@ function drawRock() {
 function drawSea() {
   let seaTop = height + 80;
 
-  fill("#7fdcff");
-  stroke("#ffffff");
-  strokeWeight(3);
+    fill("#7fdcff");
+    stroke("#ffffff");
+    strokeWeight(3);
 
-  beginShape();
+    beginShape();
 
-  vertex(0, height);
+    vertex(0, height);
 
-  for (let x = 0; x <= width; x += 40) {
-    let wave = map(
-      noise(x * 0.01, frameCount * 0.02),
-      0,
-      1,
-      -30,
-      30
-    );
+    for (let x = 0; x <= width; x += 40) {
+        let wave = map(
+            noise(x * 0.01, frameCount * 0.02),
+            0,
+            1,
+            -30,
+            30
+        );
 
-    curveVertex(x, waveY + wave);
-  }
+        curveVertex(x, waveY + wave);
+    }
 
-  vertex(width, height);
-  vertex(0, height);
+    vertex(width, height);
+    vertex(0, height);
 
-  endShape(CLOSE);
+    endShape(CLOSE);
 
-  waveY -= 0.1;
+    waveY -= 0.1;
 
   if (waveY < seaTop) {
     waveY = height - 30;
