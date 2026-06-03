@@ -30,7 +30,7 @@ let questions = [
     "Who finds it harder to let go?",
     "Who has already left emotionally, but never said it out loud?"
 ];
-
+let queIndex = 0;
 let items = [];
 
 let angle = 0;
@@ -48,10 +48,6 @@ let first = true;
 let neutral;
 let seaSound;
 
-let aLie;
-let aMess;
-let aPromise;
-
 let x = 800;
 let y = 100;
 
@@ -68,12 +64,29 @@ let sceneOffsetY = 100;
 // stick center position
 let stickCenterX = 670;
 let stickCenterY = 285 + sceneOffsetY;
-
-let color = [
+let maxAngle = 0.5;
+let maxPossibleWeight = 40;
+let lastAngle = 0;
+let rockColor = [
     "rgba(237, 207, 131, 1)",
     "rgba(237, 207, 131, 1)"
 ];
 
+let bgColor;
+let currentBgCol;
+let targetBgCol;
+let bgAlpha = 0.4;
+let selectedOption = null;
+let leftCount = 0;
+let yRow = 0;
+
+let answerOptions = [
+    {offsetX: -240, size: 45, currentSize: 45, pos: "left", value: 2},
+    {offsetX: -160, size: 35, currentSize: 35, pos: "left", value: 1},
+    {offsetX: -80, size: 28, currentSize: 28, pos: "neut", value: 0 },
+    {offsetX: 0, size: 35, currentSize: 35, pos: "right", value: 1 },
+    {offsetX: 80, size: 45, currentSize: 45, pos: "right", value: 2 }
+];
 function preload() {
     neutral = loadImage("character/Neutral.png");
     seaSound = loadSound("audio/sea.wav");
@@ -84,57 +97,33 @@ function setup() {
     createCanvas(windowWidth, windowHeight);
     pixelDensity(window.devicePixelRatio);
     initialRain(rainInfor); 
+    bgColor = color("#1d81f2");
+    currentBgCol = color("#1d81f2");
+    targetBgCol = color("#1d81f2");
 
-    items.push({
-        func: drawStone,
-        x: 40,
-        y: 480 + sceneOffsetY,
-        realX: 40,
-        realY: 480 + sceneOffsetY,
-        scale: 0.5,
-        weight: 8,
-        onStick: false,
-        left: false,
-        right: false,
-        type: "big",
-        r: 0
-    });
-
-    items.push({
-        func: drawStone,
-        x: 900,
-        y: 510 + sceneOffsetY,
-        realX: 900,
-        realY: 510 + sceneOffsetY,
-        scale: 0.5,
-        weight: 8,
-        onStick: false,
-        left: false,
-        right: false,
-        type: "small",
-        r: 0
-    });
+    
 
     waveY = height - 20;
 }
 
 function draw() {
-    background("#1d81f285");
+    updateBalanceAngle(left, right);
+
+    angle = lerp(angle, targetAngle, 0.01);
+
+    setUpBackground();
+    background(bgColor);
 
     drawStartAnimation();
-    
-    // 问题和选项不受 sceneOffsetY 影响
-    if (endAnimation) {
-        drawQuestion(0, 0);
-    }
 
-    updateBalanceAngle(left, right);
+    if (endAnimation) {
+        drawQuestion(queIndex, 0);
+    }
 
     fill("#12bafc14");
     noStroke();
     rect(0, 160, width, height);
 
-    // draw sea background
     fill(0, 119, 190);
     noStroke();
     rect(0, height / 1.2, width, height / 2);
@@ -142,12 +131,10 @@ function draw() {
     drawItems();
     drawRock();
 
-    // 支点圆形，跟着场景往下
     noStroke();
     fill("#fdf3f3ff");
     circle(650, 365 + sceneOffsetY, 130);
 
-    // 支点阴影，跟着场景往下
     fill("rgba(180, 160, 170, 0.35)");
     noStroke();
 
@@ -169,8 +156,6 @@ function draw() {
 
     endShape(CLOSE);
 
-    angle = lerp(angle, targetAngle, 0.01);
-
     if (abs(angle - targetAngle) < 0.01 && first) {
         targetAngle *= -1;
     }
@@ -179,31 +164,65 @@ function draw() {
     drawSea();
     drawRains();
 }
-
 function drawQuestion(queIndex, tim) {
+    // question
     fill("rgba(60, 245, 245, 1)");
     textSize(40);
     textAlign(CENTER, CENTER);
     textFont("fantasy");
     textStyle(BOLD);
-    text(questions[queIndex], 600, 100);
+    text(questions[queIndex], width / 2, 100);
 
-    fill("rgba(3, 3, 3, 1)");
+    // options
+    let centerX = width / 2;
+    let optionY = 180;
+
+    stroke("rgba(55, 217, 55, 1)");
+    strokeWeight(3);
+    fill("rgba(255, 255, 255, 1)");
     textSize(40);
+    textAlign(CENTER, CENTER);
 
-    text("Me", 330, 180);
+    text("Me", centerX - 320, optionY + 5);
+    fill("rgba(241, 252, 255, 1)");
+    drawAnswer(centerX, optionY);
+    stroke("rgba(55, 217, 55, 1)");
+    strokeWeight(3);
+    text("The Other Side", centerX + 275, optionY + 5);
+}
+function drawAnswer(centerX, optionY){
+    for (let i = 0; i < answerOptions.length; i++) {
+        let option = answerOptions[i];
 
-    circle(420, 180, 50);
-    circle(510, 180, 40);
-    circle(590, 180, 30);
-    circle(660, 180, 40);
-    circle(750, 180, 50);
+        let x = centerX + option.offsetX;
+        let y = optionY;
 
-    textSize(40);
-    text("Fere", 840, 180);
+        let d = dist(mouseX, mouseY, x, y);
+
+        let targetSize;
+
+        if (d < option.currentSize / 2) {
+            targetSize = option.size * 1.4;
+        } else {
+            targetSize = option.size;
+        }
+
+        option.currentSize = lerp(option.currentSize, targetSize, 0.15);
+
+        if (selectedOption === i) {
+            stroke("rgba(255, 180, 0, 1)");
+            strokeWeight(5);
+        } else {
+            stroke("rgba(55, 217, 55, 1)");
+            strokeWeight(3);
+        }
+
+        fill("rgba(241, 252, 255, 1)");
+        circle(x, y, option.currentSize);
     }
+}
 
-    function drawStartAnimation() {
+function drawStartAnimation() {
     fill(138, 30, 240, alpha);
     noStroke();
     textSize(60);
@@ -238,7 +257,6 @@ function drawStone(x, y, s, type, r) {
     strokeWeight(3);
 
     beginShape();
-
     if (type === "big") {
         vertex(0, 10);
         bezierVertex(20, -15, 55, -28, 95, -26);
@@ -271,25 +289,23 @@ function drawStone(x, y, s, type, r) {
 }
 
 function updateBalanceAngle(left, right) {
-    if (left > right) {
-        targetAngle = -0.2;
-    } else if (right > left) {
-        targetAngle = 0.2;
-    } else if (!first) {
-        if (left > 0 && right > 0) {
-        if (!allSet) {
-            allSet = true;
-            alpha = 0;
-        }
-        } else {
-        if (allSet) {
-            allSet = false;
-            alpha = 255;
-        }
-        }
 
-        targetAngle = 0.06;
-        first = true;
+    diff = right - left;
+    targetAngle = map(diff, -maxPossibleWeight, maxPossibleWeight, -maxAngle, maxAngle);
+    if (left === right) {
+        targetAngle = 0;
+
+        if (left > 0 && right > 0) {
+            if (!allSet) {
+                allSet = true;
+                alpha = 0;
+            }
+        } else {
+            if (allSet) {
+                allSet = false;
+                alpha = 255;
+            }
+        }
     }
 }
 
@@ -315,7 +331,7 @@ function drawItems() {
     let count = 0;
 
     for (let item of items) {
-        fill(color[count % color.length]);
+        fill(rockColor[count % rockColor.length]);
 
         if (item.onStick) {
         let localX = item.x - stickCenterX;
@@ -336,26 +352,26 @@ function drawItems() {
     }
 }
 
-function mouseOnBottle(item, checkX, checkY) {
-    let s = item.scale;
+// function mouseOnBottle(item, checkX, checkY) {
+//     let s = item.scale;
 
-    let localMouseX = (mouseX - checkX) / s;
-    let localMouseY = (mouseY - checkY) / s;
+//     let localMouseX = (mouseX - checkX) / s;
+//     let localMouseY = (mouseY - checkY) / s;
 
-    let onNeck =
-        localMouseX > 0 &&
-        localMouseX < 100 &&
-        localMouseY > -15 &&
-        localMouseY < 65;
+//     let onNeck =
+//         localMouseX > 0 &&
+//         localMouseX < 100 &&
+//         localMouseY > -15 &&
+//         localMouseY < 65;
 
-    let onBody =
-        localMouseX > -75 &&
-        localMouseX < 190 &&
-        localMouseY > 60 &&
-        localMouseY < 205;
+//     let onBody =
+//         localMouseX > -75 &&
+//         localMouseX < 190 &&
+//         localMouseY > 60 &&
+//         localMouseY < 205;
 
-    return onNeck || onBody;
-}
+//     return onNeck || onBody;
+// }
 
 function mouseDragged() {
     if (draggingItem) {
@@ -366,49 +382,74 @@ function mouseDragged() {
 
 function mousePressed() {
     userStartAudio();
-
+    userChooseAnswer();
     if (!seaSound.isPlaying()) {
         seaSound.loop();
     }
 
-    for (let item of items) {
-        let checkX = item.x;
-        let checkY = item.y;
+    
+}
+function userChooseAnswer() {
+    let centerX = width / 2;
+    let optionY = 180;
 
-        if (item.onStick) {
-            let localX = item.x - stickCenterX;
-            let localY = item.y - stickCenterY;
+    for (let i = 0; i < answerOptions.length; i++) {
+        let option = answerOptions[i];
 
-            checkX = stickCenterX + localX * cos(angle) - localY * sin(angle);
+        let x = centerX + option.offsetX;
+        let y = optionY;
 
-            checkY = stickCenterY + localX * sin(angle) + localY * cos(angle);
-        }
+        let d = dist(mouseX, mouseY, x, y);
 
-        if (mouseOnBottle(item, checkX, checkY)) {
-            draggingItem = item;
+        if (d < option.currentSize / 2) {
+            selectedOption = i;
 
-            offsetX = mouseX - checkX;
-            offsetY = mouseY - checkY;
+            if (option.pos == "left") {
+                left += option.value;
+                let stoneX = random(270, 450);
+                let stoneType;
+                if (option.value === 2) {   
+                    stoneType = "medium";
+                } else {
+                    stoneType = "small";
+                }
+                
+                if (leftCount == 3) {
+                    yRow += 40;
+                    leftCount = 0;
+                } 
+                items.push({
+                    func: drawStone,
+                    x: stoneX,
+                    y: 250 + sceneOffsetY - yRow,
+                    realX: stoneX,
+                    realY: 250 + sceneOffsetY - yRow,
+                    scale: 0.5,
+                    weight: 2,
+                    onStick: true,
+                    left: true,
+                    right: false,
+                    type: stoneType,
+                    r: 0
+                });
+                leftCount++;
 
-            if (item.left) {
-                left -= item.weight;
-                item.left = false;
+            } else if (option.pos == "right") {
+                right += option.value;
             }
-
-            if (item.right) {
-                right -= item.weight;
-                item.right = false;
+            queIndex++;
+            if (queIndex >= questions.length) {
+                resetAll();
             }
+            console.log("selected value:", option.value);
+            console.log("left:", left, "right:", right);
 
-            item.x = checkX;
-            item.y = checkY;
-            item.onStick = false;
-
-            break;
+            return true;
         }
     }
-}
 
+    return false;
+}
 function mouseReleased() {
     if (draggingItem) {
         if (isOnStick(draggingItem)) {
