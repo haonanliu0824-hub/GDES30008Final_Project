@@ -56,8 +56,8 @@ let offsetY = 0;
 
 let alpha = 0;
 let allSet = false;
-let startAnimation = true;
-let endAnimation = false;
+let startAnimation = false;
+let endAnimation = true;
 
 let sceneOffsetY = 100;
 
@@ -77,6 +77,8 @@ let currentBgCol;
 let targetBgCol;
 let bgAlpha = 0.4;
 let selectedOption = null;
+let leftCount = 0;
+let yRow = 0;
 
 let answerOptions = [
     {offsetX: -240, size: 45, currentSize: 45, pos: "left", value: 2},
@@ -99,35 +101,7 @@ function setup() {
     currentBgCol = color("#1d81f2");
     targetBgCol = color("#1d81f2");
 
-    items.push({
-        func: drawStone,
-        x: 40,
-        y: 480 + sceneOffsetY,
-        realX: 40,
-        realY: 480 + sceneOffsetY,
-        scale: 0.5,
-        weight: 30,
-        onStick: false,
-        left: false,
-        right: false,
-        type: "big",
-        r: 0
-    });
-
-    items.push({
-        func: drawStone,
-        x: 900,
-        y: 510 + sceneOffsetY,
-        realX: 900,
-        realY: 510 + sceneOffsetY,
-        scale: 0.5,
-        weight: 20,
-        onStick: false,
-        left: false,
-        right: false,
-        type: "small",
-        r: 0
-    });
+    
 
     waveY = height - 20;
 }
@@ -535,7 +509,7 @@ function userChooseAnswer() {
 
             if (option.pos == "left") {
                 left += option.value;
-                let stoneX = random(100, stickCenterX-30);
+                let stoneX = random(270, 450);
                 let stoneType;
                 if (option.value === 2) {   
                     stoneType = "medium";
@@ -543,20 +517,25 @@ function userChooseAnswer() {
                     stoneType = "small";
                 }
                 
+                if (leftCount == 3) {
+                    yRow += 40;
+                    leftCount = 0;
+                } 
                 items.push({
                     func: drawStone,
                     x: stoneX,
-                    y: ,
-                    realX: 900,
-                    realY: 510 + sceneOffsetY,
+                    y: 250 + sceneOffsetY - yRow,
+                    realX: stoneX,
+                    realY: 250 + sceneOffsetY - yRow,
                     scale: 0.5,
-                    weight: 20,
-                    onStick: false,
-                    left: false,
+                    weight: 2,
+                    onStick: true,
+                    left: true,
                     right: false,
-                    type: "small",
+                    type: stoneType,
                     r: 0
                 });
+                leftCount++;
 
             } else if (option.pos == "right") {
                 right += option.value;
