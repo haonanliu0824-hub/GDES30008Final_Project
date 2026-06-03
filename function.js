@@ -56,8 +56,8 @@ let offsetY = 0;
 
 let alpha = 0;
 let allSet = false;
-let startAnimation = false;
-let endAnimation = true;
+let startAnimation = true;
+let endAnimation = false;
 
 let sceneOffsetY = 100;
 
@@ -77,8 +77,6 @@ let currentBgCol;
 let targetBgCol;
 let bgAlpha = 0.4;
 let selectedOption = null;
-let leftCount = 0;
-let yRow = 0;
 
 let answerOptions = [
     {offsetX: -240, size: 45, currentSize: 45, pos: "left", value: 2},
@@ -101,7 +99,35 @@ function setup() {
     currentBgCol = color("#1d81f2");
     targetBgCol = color("#1d81f2");
 
-    
+    items.push({
+        func: drawStone,
+        x: 40,
+        y: 480 + sceneOffsetY,
+        realX: 40,
+        realY: 480 + sceneOffsetY,
+        scale: 0.5,
+        weight: 30,
+        onStick: false,
+        left: false,
+        right: false,
+        type: "big",
+        r: 0
+    });
+
+    items.push({
+        func: drawStone,
+        x: 900,
+        y: 510 + sceneOffsetY,
+        realX: 900,
+        realY: 510 + sceneOffsetY,
+        scale: 0.5,
+        weight: 20,
+        onStick: false,
+        left: false,
+        right: false,
+        type: "small",
+        r: 0
+    });
 
     waveY = height - 20;
 }
@@ -113,10 +139,18 @@ function draw() {
 
     setUpBackground();
     background(bgColor);
+    updateBalanceAngle(left, right);
+
+    angle = lerp(angle, targetAngle, 0.01);
+
+    setUpBackground();
+    background(bgColor);
 
     drawStartAnimation();
 
+
     if (endAnimation) {
+        drawQuestion(queIndex, 0);
         drawQuestion(queIndex, 0);
     }
 
@@ -166,13 +200,22 @@ function draw() {
 }
 function drawQuestion(queIndex, tim) {
     // question
+    // question
     fill("rgba(60, 245, 245, 1)");
     textSize(40);
     textAlign(CENTER, CENTER);
     textFont("fantasy");
     textStyle(BOLD);
     text(questions[queIndex], width / 2, 100);
+    text(questions[queIndex], width / 2, 100);
 
+    // options
+    let centerX = width / 2;
+    let optionY = 180;
+
+    stroke("rgba(55, 217, 55, 1)");
+    strokeWeight(3);
+    fill("rgba(255, 255, 255, 1)");
     // options
     let centerX = width / 2;
     let optionY = 180;
@@ -221,7 +264,48 @@ function drawAnswer(centerX, optionY){
         circle(x, y, option.currentSize);
     }
 }
+    textAlign(CENTER, CENTER);
 
+    text("Me", centerX - 320, optionY + 5);
+    fill("rgba(241, 252, 255, 1)");
+    drawAnswer(centerX, optionY);
+    stroke("rgba(55, 217, 55, 1)");
+    strokeWeight(3);
+    text("The Other Side", centerX + 275, optionY + 5);
+}
+function drawAnswer(centerX, optionY){
+    for (let i = 0; i < answerOptions.length; i++) {
+        let option = answerOptions[i];
+
+        let x = centerX + option.offsetX;
+        let y = optionY;
+
+        let d = dist(mouseX, mouseY, x, y);
+
+        let targetSize;
+
+        if (d < option.currentSize / 2) {
+            targetSize = option.size * 1.4;
+        } else {
+            targetSize = option.size;
+        }
+
+        option.currentSize = lerp(option.currentSize, targetSize, 0.15);
+
+        if (selectedOption === i) {
+            stroke("rgba(255, 180, 0, 1)");
+            strokeWeight(5);
+        } else {
+            stroke("rgba(55, 217, 55, 1)");
+            strokeWeight(3);
+        }
+
+        fill("rgba(241, 252, 255, 1)");
+        circle(x, y, option.currentSize);
+    }
+}
+
+function drawStartAnimation() {
 function drawStartAnimation() {
     fill(138, 30, 240, alpha);
     noStroke();
@@ -295,12 +379,26 @@ function updateBalanceAngle(left, right) {
     if (left === right) {
         targetAngle = 0;
 
+
+    diff = right - left;
+    targetAngle = map(diff, -maxPossibleWeight, maxPossibleWeight, -maxAngle, maxAngle);
+    if (left === right) {
+        targetAngle = 0;
+
         if (left > 0 && right > 0) {
             if (!allSet) {
                 allSet = true;
                 alpha = 0;
             }
+            if (!allSet) {
+                allSet = true;
+                alpha = 0;
+            }
         } else {
+            if (allSet) {
+                allSet = false;
+                alpha = 255;
+            }
             if (allSet) {
                 allSet = false;
                 alpha = 255;
@@ -332,6 +430,7 @@ function drawItems() {
 
     for (let item of items) {
         fill(rockColor[count % rockColor.length]);
+        fill(rockColor[count % rockColor.length]);
 
         if (item.onStick) {
         let localX = item.x - stickCenterX;
@@ -354,10 +453,19 @@ function drawItems() {
 
 // function mouseOnBottle(item, checkX, checkY) {
 //     let s = item.scale;
+// function mouseOnBottle(item, checkX, checkY) {
+//     let s = item.scale;
 
 //     let localMouseX = (mouseX - checkX) / s;
 //     let localMouseY = (mouseY - checkY) / s;
+//     let localMouseX = (mouseX - checkX) / s;
+//     let localMouseY = (mouseY - checkY) / s;
 
+//     let onNeck =
+//         localMouseX > 0 &&
+//         localMouseX < 100 &&
+//         localMouseY > -15 &&
+//         localMouseY < 65;
 //     let onNeck =
 //         localMouseX > 0 &&
 //         localMouseX < 100 &&
@@ -369,7 +477,14 @@ function drawItems() {
 //         localMouseX < 190 &&
 //         localMouseY > 60 &&
 //         localMouseY < 205;
+//     let onBody =
+//         localMouseX > -75 &&
+//         localMouseX < 190 &&
+//         localMouseY > 60 &&
+//         localMouseY < 205;
 
+//     return onNeck || onBody;
+// }
 //     return onNeck || onBody;
 // }
 
@@ -383,10 +498,24 @@ function mouseDragged() {
 function mousePressed() {
     userStartAudio();
     userChooseAnswer();
+    userChooseAnswer();
     if (!seaSound.isPlaying()) {
         seaSound.loop();
     }
 
+    
+}
+function userChooseAnswer() {
+    let centerX = width / 2;
+    let optionY = 180;
+
+    for (let i = 0; i < answerOptions.length; i++) {
+        let option = answerOptions[i];
+
+        let x = centerX + option.offsetX;
+        let y = optionY;
+
+        let d = dist(mouseX, mouseY, x, y);
     
 }
 function userChooseAnswer() {
@@ -406,7 +535,7 @@ function userChooseAnswer() {
 
             if (option.pos == "left") {
                 left += option.value;
-                let stoneX = random(270, 450);
+                let stoneX = random(100, stickCenterX-30);
                 let stoneType;
                 if (option.value === 2) {   
                     stoneType = "medium";
@@ -414,25 +543,20 @@ function userChooseAnswer() {
                     stoneType = "small";
                 }
                 
-                if (leftCount == 3) {
-                    yRow += 40;
-                    leftCount = 0;
-                } 
                 items.push({
                     func: drawStone,
                     x: stoneX,
-                    y: 250 + sceneOffsetY - yRow,
-                    realX: stoneX,
-                    realY: 250 + sceneOffsetY - yRow,
+                    y: ,
+                    realX: 900,
+                    realY: 510 + sceneOffsetY,
                     scale: 0.5,
-                    weight: 2,
-                    onStick: true,
-                    left: true,
+                    weight: 20,
+                    onStick: false,
+                    left: false,
                     right: false,
-                    type: stoneType,
+                    type: "small",
                     r: 0
                 });
-                leftCount++;
 
             } else if (option.pos == "right") {
                 right += option.value;
@@ -443,10 +567,20 @@ function userChooseAnswer() {
             }
             console.log("selected value:", option.value);
             console.log("left:", left, "right:", right);
+            queIndex++;
+            if (queIndex >= questions.length) {
+                resetAll();
+            }
+            console.log("selected value:", option.value);
+            console.log("left:", left, "right:", right);
 
+            return true;
             return true;
         }
     }
+
+    return false;
+}
 
     return false;
 }
