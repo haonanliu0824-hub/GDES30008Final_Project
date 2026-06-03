@@ -190,13 +190,6 @@ function drawQuestion(queIndex, tim) {
     stroke("rgba(55, 217, 55, 1)");
     strokeWeight(3);
     fill("rgba(255, 255, 255, 1)");
-    // options
-    let centerX = width / 2;
-    let optionY = 180;
-
-    stroke("rgba(55, 217, 55, 1)");
-    strokeWeight(3);
-    fill("rgba(255, 255, 255, 1)");
     textSize(40);
     textAlign(CENTER, CENTER);
 
@@ -238,48 +231,7 @@ function drawAnswer(centerX, optionY){
         circle(x, y, option.currentSize);
     }
 }
-    textAlign(CENTER, CENTER);
 
-    text("Me", centerX - 320, optionY + 5);
-    fill("rgba(241, 252, 255, 1)");
-    drawAnswer(centerX, optionY);
-    stroke("rgba(55, 217, 55, 1)");
-    strokeWeight(3);
-    text("The Other Side", centerX + 275, optionY + 5);
-}
-function drawAnswer(centerX, optionY){
-    for (let i = 0; i < answerOptions.length; i++) {
-        let option = answerOptions[i];
-
-        let x = centerX + option.offsetX;
-        let y = optionY;
-
-        let d = dist(mouseX, mouseY, x, y);
-
-        let targetSize;
-
-        if (d < option.currentSize / 2) {
-            targetSize = option.size * 1.4;
-        } else {
-            targetSize = option.size;
-        }
-
-        option.currentSize = lerp(option.currentSize, targetSize, 0.15);
-
-        if (selectedOption === i) {
-            stroke("rgba(255, 180, 0, 1)");
-            strokeWeight(5);
-        } else {
-            stroke("rgba(55, 217, 55, 1)");
-            strokeWeight(3);
-        }
-
-        fill("rgba(241, 252, 255, 1)");
-        circle(x, y, option.currentSize);
-    }
-}
-
-function drawStartAnimation() {
 function drawStartAnimation() {
     fill(138, 30, 240, alpha);
     noStroke();
@@ -347,12 +299,6 @@ function drawStone(x, y, s, type, r) {
 }
 
 function updateBalanceAngle(left, right) {
-
-    diff = right - left;
-    targetAngle = map(diff, -maxPossibleWeight, maxPossibleWeight, -maxAngle, maxAngle);
-    if (left === right) {
-        targetAngle = 0;
-
 
     diff = right - left;
     targetAngle = map(diff, -maxPossibleWeight, maxPossibleWeight, -maxAngle, maxAngle);
@@ -472,24 +418,10 @@ function mouseDragged() {
 function mousePressed() {
     userStartAudio();
     userChooseAnswer();
-    userChooseAnswer();
     if (!seaSound.isPlaying()) {
         seaSound.loop();
     }
 
-    
-}
-function userChooseAnswer() {
-    let centerX = width / 2;
-    let optionY = 180;
-
-    for (let i = 0; i < answerOptions.length; i++) {
-        let option = answerOptions[i];
-
-        let x = centerX + option.offsetX;
-        let y = optionY;
-
-        let d = dist(mouseX, mouseY, x, y);
     
 }
 function userChooseAnswer() {
@@ -546,14 +478,7 @@ function userChooseAnswer() {
             }
             console.log("selected value:", option.value);
             console.log("left:", left, "right:", right);
-            queIndex++;
-            if (queIndex >= questions.length) {
-                resetAll();
-            }
-            console.log("selected value:", option.value);
-            console.log("left:", left, "right:", right);
 
-            return true;
             return true;
         }
     }
@@ -561,8 +486,6 @@ function userChooseAnswer() {
     return false;
 }
 
-    return false;
-}
 function mouseReleased() {
     if (draggingItem) {
         if (isOnStick(draggingItem)) {
