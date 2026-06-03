@@ -56,14 +56,11 @@ let offsetY = 0;
 
 let alpha = 0;
 let allSet = false;
-let startAnimation = false;
-let endAnimation = true;
-
-let sceneOffsetY = 100;
+let startAnimation = true;
+let endAnimation = false;
 
 // stick center position
-let stickCenterX = 670;
-let stickCenterY = 285 + sceneOffsetY;
+
 let maxAngle = 0.5;
 let maxPossibleWeight = 40;
 let lastAngle = 0;
@@ -78,7 +75,10 @@ let targetBgCol;
 let bgAlpha = 0.4;
 let selectedOption = null;
 let leftCount = 0;
-let yRow = 0;
+let leftYRow = 0;
+let rightYRow = 0;
+let rightCount = 0;
+let seaTop = 80;
 
 let answerOptions = [
     {offsetX: -240, size: 45, currentSize: 45, pos: "left", value: 2},
@@ -95,18 +95,18 @@ function preload() {
 function setup() {
 
     createCanvas(windowWidth, windowHeight);
+    seaTop += height;
     pixelDensity(window.devicePixelRatio);
     initialRain(rainInfor); 
     bgColor = color("#1d81f2");
     currentBgCol = color("#1d81f2");
     targetBgCol = color("#1d81f2");
-
-    
-
     waveY = height - 20;
+
 }
 
 function draw() {
+    windowResized(windowHeight+sceneOffsetY);
     updateBalanceAngle(left, right);
 
     angle = lerp(angle, targetAngle, 0.01);
@@ -125,7 +125,6 @@ function draw() {
 
     if (endAnimation) {
         drawQuestion(queIndex, 0);
-        drawQuestion(queIndex, 0);
     }
 
     fill("#12bafc14");
@@ -139,30 +138,7 @@ function draw() {
     drawItems();
     drawRock();
 
-    noStroke();
-    fill("#fdf3f3ff");
-    circle(650, 365 + sceneOffsetY, 130);
-
-    fill("rgba(180, 160, 170, 0.35)");
-    noStroke();
-
-    beginShape();
-
-    vertex(715, 365 + sceneOffsetY);
-
-    bezierVertex(
-        705, 395 + sceneOffsetY,
-        680, 425 + sceneOffsetY,
-        650, 430 + sceneOffsetY
-    );
-
-    bezierVertex(
-        680, 430 + sceneOffsetY,
-        715, 400 + sceneOffsetY,
-        715, 365 + sceneOffsetY
-    );
-
-    endShape(CLOSE);
+    drawCentralBall();
 
     if (abs(angle - targetAngle) < 0.01 && first) {
         targetAngle *= -1;
@@ -173,8 +149,6 @@ function draw() {
     drawRains();
 }
 function drawQuestion(queIndex, tim) {
-    // question
-    // question
     fill("rgba(60, 245, 245, 1)");
     textSize(40);
     textAlign(CENTER, CENTER);
@@ -233,13 +207,15 @@ function drawAnswer(centerX, optionY){
 }
 
 function drawStartAnimation() {
-    fill(138, 30, 240, alpha);
+    // "rgba(191, 246, 246, 1)"
+    fill(191,246, 246, alpha);
     noStroke();
     textSize(60);
     textAlign(CENTER, CENTER);
     textFont("fantasy");
     textStyle(BOLD);
     text("The Weight of What Was Left Unsaid", 600, 100);
+    text("Author: Haonan Liu   Yuqing Fei ⛄️", 600, 180);
 
     if (alpha < 255 && startAnimation) {
         alpha += 1;
@@ -354,7 +330,7 @@ function drawItems() {
 
         if (item.onStick) {
         let localX = item.x - stickCenterX;
-        let localY = item.y - stickCenterY;
+        let localY = item.y - stickCenterY + sceneOffsetY;
 
         let drawX =
             stickCenterX + localX * cos(angle) - localY * sin(angle);
@@ -438,27 +414,31 @@ function userChooseAnswer() {
 
         if (d < option.currentSize / 2) {
             selectedOption = i;
-
+            let stoneType;
+            if (option.value === 2) {   
+                stoneType = "medium";
+            } else {
+                stoneType = "small";
+            }
             if (option.pos == "left") {
                 left += option.value;
-                let stoneX = random(270, 450);
-                let stoneType;
-                if (option.value === 2) {   
-                    stoneType = "medium";
-                } else {
-                    stoneType = "small";
-                }
+                let stoneX = random(270, 500);
                 
-                if (leftCount == 3) {
-                    yRow += 40;
+                
+                if (leftCount == 1) {
+                    leftYRow += 30;
                     leftCount = 0;
                 } 
+                if (350 + sceneOffsetY - leftYRow < 200) {
+                    sceneOffsetY += 15;
+                    seaTop -= 15;
+                }
                 items.push({
                     func: drawStone,
                     x: stoneX,
-                    y: 250 + sceneOffsetY - yRow,
+                    y: 350 + sceneOffsetY - leftYRow,
                     realX: stoneX,
-                    realY: 250 + sceneOffsetY - yRow,
+                    realY: 250 + sceneOffsetY - leftYRow,
                     scale: 0.5,
                     weight: 2,
                     onStick: true,
@@ -471,6 +451,27 @@ function userChooseAnswer() {
 
             } else if (option.pos == "right") {
                 right += option.value;
+                let stoneX = random(700, 950);
+                
+                if (rightCount == 1) {
+                    rightYRow += 30;
+                    rightCount = 0;
+                } 
+                items.push({
+                    func: drawStone,
+                    x: stoneX,
+                    y: 350 + sceneOffsetY - rightYRow,
+                    realX: stoneX,
+                    realY: 250 + sceneOffsetY - rightYRow,
+                    scale: 0.5,
+                    weight: 2,
+                    onStick: true,
+                    left: false,
+                    right: true,
+                    type: stoneType,
+                    r: 0
+                });
+                rightCount++;
             }
             queIndex++;
             if (queIndex >= questions.length) {
@@ -513,64 +514,8 @@ function mouseReleased() {
     draggingItem = null;
 }
 
-function drawStick() {
-    push();
-
-    translate(stickCenterX, stickCenterY);
-    rotate(angle);
-
-    rectMode(CENTER);
-    noStroke();
-
-    fill("#e59f35");
-    rect(0, 0, 680, 30, 30);
-
-    fill(255, 255, 255, 60);
-    rect(0, -8, 660, 6, 6);
-
-    fill(0, 0, 0, 50);
-    rect(0, 10, 660, 6, 6);
-
-    pop();
-}
-
-function drawRock() {
-    strokeCap(ROUND);
-    stroke("#00000071");
-    strokeWeight(8);
-
-    beginShape();
-
-    fill("#737784ff");
-
-    let x = 50;
-    let y = 650;
-
-    let yOffsets = [-70, -86, -90, -90, -100, -120];
-
-    let step = 70;
-
-    for (let i = 0; i < 12; i++) {
-        let yOffset = 0;
-
-        if (i > 5) {
-            yOffset = yOffsets[5];
-        } else {
-            yOffset = yOffsets[i];
-        }
-
-        curveVertex(x, y + yOffset);
-        x += step;
-    }
-
-    curveVertex(x - step, y + 70);
-    curveVertex(50, y + 50);
-
-    endShape(CLOSE);
-}
 
 function drawSea() {
-    let seaTop = height + 80;
 
     fill("#7fdcff");
     stroke("#ffffff");
@@ -604,6 +549,6 @@ function drawSea() {
     }
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+function windowResized(winheight) {
+  resizeCanvas(windowWidth, winheight);
 }

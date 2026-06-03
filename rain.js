@@ -22,6 +22,10 @@ function resetAll() {
     bgColor = color("#1d81f2");
     currentBgCol = color("#1d81f2");
     targetBgCol = color("#1d81f2");
+    items = [];
+    leftYRow = 0;
+    rightYRow = 0;
+    sceneOffsetY = 0;
 }
 function setUpBackground() {
     let angleStrength = abs(targetAngle);
