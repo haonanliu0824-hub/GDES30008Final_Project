@@ -1,6 +1,10 @@
 let sceneOffsetY = 0;
 let stickCenterX = 670;
 let stickCenterY = 385;
+let finishAnimation = false;
+let finishAlpha = 0;
+let finishTextY = 0;
+
 function drawStick() {
     push();
     translate(stickCenterX, stickCenterY + sceneOffsetY);
@@ -81,4 +85,43 @@ function drawRock() {
     curveVertex(50, y + 50);
 
     endShape(CLOSE);
+}
+
+function drawFinishAnimation() {
+    finishAlpha = lerp(finishAlpha, 255, 0.01);
+    finishTextY = lerp(finishTextY, 120, 0.01);
+    
+    push();
+
+    fill(0, 0, 0, 120);
+    noStroke();
+    rect(0, 0, width, height);
+
+    fill(255, 245, 230, finishAlpha);
+    textAlign(CENTER, CENTER);
+    textFont("fantasy");
+    textStyle(BOLD);
+    textSize(52);
+    text("The Weight Has Settled", width / 2, finishTextY - 40);
+
+    textSize(28);
+    textStyle(NORMAL);
+    fill(255, 255, 255, finishAlpha);
+    text(
+        "Some things were never said, but they still had weight.",
+        width / 2,
+        finishTextY + 30
+    );
+    if (finishTextY < 122){
+        textSize(20);
+        textStyle(NORMAL);
+        fill(255, 255, 255, finishAlpha);
+        text(
+            "Click Any where to retry",
+            150,
+            30
+        );
+    }
+    
+    pop();
 }

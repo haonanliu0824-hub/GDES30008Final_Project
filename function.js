@@ -56,8 +56,8 @@ let offsetY = 0;
 
 let alpha = 0;
 let allSet = false;
-let startAnimation = true;
-let endAnimation = false;
+let startAnimation = false;
+let endAnimation = true;
 
 // stick center position
 
@@ -79,11 +79,12 @@ let leftYRow = 0;
 let rightYRow = 0;
 let rightCount = 0;
 let seaTop = 80;
-
+let leftInfor = {prev:0, last:0};
+let rightInfor = {prev:0, last:0};
 let answerOptions = [
     {offsetX: -240, size: 45, currentSize: 45, pos: "left", value: 2},
     {offsetX: -160, size: 35, currentSize: 35, pos: "left", value: 1},
-    {offsetX: -80, size: 28, currentSize: 28, pos: "neut", value: 0 },
+    {offsetX: -80, size: 28, currentSize: 28, pos: "neural", value: 0 },
     {offsetX: 0, size: 35, currentSize: 35, pos: "right", value: 1 },
     {offsetX: 80, size: 45, currentSize: 45, pos: "right", value: 2 }
 ];
@@ -102,6 +103,12 @@ function setup() {
     currentBgCol = color("#1d81f2");
     targetBgCol = color("#1d81f2");
     waveY = height - 20;
+    preLeft = random(250, 300);
+    leftInfor.prev = preLeft;
+    leftInfor.last = preLeft + 150;
+    preRight = random(700, 850);
+    rightInfor.prev = preRight;
+    rightInfor.last = preRight + 100;
 
 }
 
@@ -121,12 +128,15 @@ function draw() {
     background(bgColor);
 
     drawStartAnimation();
-
-
-    if (endAnimation) {
-        drawQuestion(queIndex, 0);
+    
+    
+    if (finishAnimation) {
+        drawFinishAnimation();
+    } else {
+        if (endAnimation) {
+            drawQuestion(queIndex, 0);
+        }
     }
-
     fill("#12bafc14");
     noStroke();
     rect(0, 160, width, height);
@@ -227,7 +237,7 @@ function drawStartAnimation() {
         alpha -= 1;
     }
 
-    if (alpha === 0) {
+    if (alpha <= 0) {
         endAnimation = true;
     }
 }
@@ -239,8 +249,9 @@ function drawStone(x, y, s, type, r) {
     rotate(r);
     scale(s);
 
-    stroke("rgba(120, 110, 100, 0.85)");
+    stroke("rgba(255, 246, 238, 0.85)");
     strokeWeight(3);
+    fill("rgba(255, 237, 202, 1)");
 
     beginShape();
     if (type === "big") {
@@ -270,6 +281,61 @@ function drawStone(x, y, s, type, r) {
     }
 
     endShape(CLOSE);
+
+    // 高光
+    noStroke();
+    fill(255, 255, 255, 45);
+
+    if (type === "big") {
+        ellipse(120, 5, 120, 25);
+    } else if (type === "medium") {
+        ellipse(90, 5, 85, 20);
+    } else if (type === "small") {
+        ellipse(60, 5, 55, 15);
+    }
+
+    // 暗部
+    fill(90, 75, 60, 45);
+
+    if (type === "big") {
+        ellipse(240, 45, 180, 30);
+    } else if (type === "medium") {
+        ellipse(170, 38, 120, 25);
+    } else if (type === "small") {
+        ellipse(110, 28, 80, 18);
+    }
+
+    // 小斑点
+    fill(100, 85, 70, 80);
+
+    if (type === "big") {
+        ellipse(70, 22, 12, 8);
+        ellipse(180, 30, 10, 7);
+        ellipse(310, 18, 14, 9);
+    } else if (type === "medium") {
+        ellipse(55, 20, 10, 7);
+        ellipse(135, 28, 9, 6);
+        ellipse(230, 18, 11, 7);
+    } else if (type === "small") {
+        ellipse(35, 16, 8, 5);
+        ellipse(90, 22, 7, 5);
+        ellipse(150, 15, 8, 5);
+    }
+
+    // 裂纹
+    stroke(90, 75, 60, 90);
+    strokeWeight(1.5);
+
+    if (type === "big") {
+        line(120, 12, 140, 28);
+        line(140, 28, 132, 40);
+    } else if (type === "medium") {
+        line(90, 12, 105, 24);
+        line(105, 24, 98, 34);
+    } else if (type === "small") {
+        line(65, 10, 76, 20);
+        line(76, 20, 70, 28);
+    }
 
     pop();
 }
@@ -326,23 +392,30 @@ function drawItems() {
 
     for (let item of items) {
         fill(rockColor[count % rockColor.length]);
-        fill(rockColor[count % rockColor.length]);
 
-        if (item.onStick) {
-        let localX = item.x - stickCenterX;
-        let localY = item.y - stickCenterY + sceneOffsetY;
+        if (item.falling) {
+            item.y = lerp(item.y, item.targetY, 0.08);
+            if (abs(item.y - item.targetY) < 1) {
+                item.y = item.targetY;
+                item.falling = false;
+                item.onStick = true;
+            }
+            item.func(item.x, item.y + sceneOffsetY, item.scale, item.type, 0);
+        } else if (item.onStick) {
+            let localX = item.x - stickCenterX;
+            let localY = item.y - stickCenterY;
 
-        let drawX =
-            stickCenterX + localX * cos(angle) - localY * sin(angle);
+            let drawX =
+                stickCenterX + localX * cos(angle) - localY * sin(angle);
 
-        let drawY =
-            stickCenterY + localX * sin(angle) + localY * cos(angle);
-
-        item.func(drawX, drawY, item.scale, item.type, angle);
+            let drawY =
+                stickCenterY + localX * sin(angle) + localY * cos(angle);
+            
+            drawY += sceneOffsetY;
+            item.func(drawX, drawY, item.scale, item.type, angle);
         } else {
-        item.func(item.x, item.y, item.scale, item.type, 0);
+            item.func(item.x, item.y, item.scale, item.type, 0);
         }
-
         count++;
     }
 }
@@ -393,9 +466,17 @@ function mouseDragged() {
 
 function mousePressed() {
     userStartAudio();
-    userChooseAnswer();
+    if (!startAnimation && !finishAnimation) {
+        userChooseAnswer();
+    }
     if (!seaSound.isPlaying()) {
         seaSound.loop();
+    }
+
+    if (finishAlpha > 250) {
+        finishAnimation = false;
+        finishAlpha = 0
+        resetAll();
     }
 
     
@@ -420,28 +501,34 @@ function userChooseAnswer() {
             } else {
                 stoneType = "small";
             }
+            
             if (option.pos == "left") {
                 left += option.value;
-                let stoneX = random(270, 500);
-                
+                let stoneX = random(leftInfor.prev,leftInfor.last);
+                stoneX = constrain(stoneX, 250, 550 - 120);
+                leftInfor.prev = stoneX;
+                if (stoneX + 120 > 500) {
+                    leftInfor.prev = stoneX-60;
+                    leftInfor.last = stoneX;
+                } else {
+                    leftInfor.last = stoneX + 60;
+                }
                 
                 if (leftCount == 1) {
-                    leftYRow += 30;
+                    leftYRow += 23;
                     leftCount = 0;
                 } 
-                if (350 + sceneOffsetY - leftYRow < 200) {
-                    sceneOffsetY += 15;
-                    seaTop -= 15;
-                }
+                
                 items.push({
                     func: drawStone,
                     x: stoneX,
-                    y: 350 + sceneOffsetY - leftYRow,
+                    y: optionY,
+                    targetY: 350 - leftYRow,
                     realX: stoneX,
-                    realY: 250 + sceneOffsetY - leftYRow,
+                    realY: 350 + sceneOffsetY - leftYRow,
                     scale: 0.5,
-                    weight: 2,
-                    onStick: true,
+                    onStick: false,
+                    falling:true,
                     left: true,
                     right: false,
                     type: stoneType,
@@ -451,8 +538,17 @@ function userChooseAnswer() {
 
             } else if (option.pos == "right") {
                 right += option.value;
-                let stoneX = random(700, 950);
+                let stoneX = random(rightInfor.prev,rightInfor.last);
+                stoneX = constrain(stoneX, 700, 900);
+                rightInfor.prev = stoneX;
+                if (stoneX + 100 > 900) {
+                    rightInfor.prev = stoneX - 60;
+                    rightInfor.last = stoneX;
+                } else {
+                    rightInfor.last = stoneX + 60;
+                }
                 
+        
                 if (rightCount == 1) {
                     rightYRow += 30;
                     rightCount = 0;
@@ -460,12 +556,14 @@ function userChooseAnswer() {
                 items.push({
                     func: drawStone,
                     x: stoneX,
-                    y: 350 + sceneOffsetY - rightYRow,
+                    y: optionY - sceneOffsetY,
+                    targetY: 350 - rightYRow,
                     realX: stoneX,
-                    realY: 250 + sceneOffsetY - rightYRow,
+                    realY: 350 + sceneOffsetY - rightYRow,
                     scale: 0.5,
                     weight: 2,
-                    onStick: true,
+                    onStick: false,
+                    falling: true,
                     left: false,
                     right: true,
                     type: stoneType,
@@ -473,9 +571,16 @@ function userChooseAnswer() {
                 });
                 rightCount++;
             }
+            if ((350 + sceneOffsetY - leftYRow < 250 || 350 + sceneOffsetY - rightYRow < 250) && option.pos != "neural") {
+                sceneOffsetY += 25;
+                seaTop -= 15;
+            }
             queIndex++;
             if (queIndex >= questions.length) {
-                resetAll();
+                finishAnimation = true;
+                finishAlpha = 0;
+                finishTextY = height + 80;
+        
             }
             console.log("selected value:", option.value);
             console.log("left:", left, "right:", right);

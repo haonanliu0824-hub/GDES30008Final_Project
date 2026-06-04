@@ -25,7 +25,18 @@ function resetAll() {
     items = [];
     leftYRow = 0;
     rightYRow = 0;
+    leftCount = 0;
+    rightCount = 0;
     sceneOffsetY = 0;
+    leftInfor = {};
+    rightInfor = {};
+    preLeft = random(270, 500);
+    leftInfor.prev = preLeft;
+    leftInfor.last = preLeft + 180;
+    preRight = random(700, 950);
+    rightInfor.prev = preRight;
+    rightInfor.last = preRight + 180;
+    seaTop = height - 40;
 }
 function setUpBackground() {
     let angleStrength = abs(targetAngle);
