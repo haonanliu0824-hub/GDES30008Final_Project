@@ -37,6 +37,10 @@ function resetAll() {
     rightInfor.prev = preRight;
     rightInfor.last = preRight + 180;
     seaTop = height - 40;
+    questionCharIndex = 0;
+    questionTypingSpeed = 0.15;
+    lastQuestionIndex = -1;
+    fullQuestion = "";
 }
 function setUpBackground() {
     let angleStrength = abs(targetAngle);

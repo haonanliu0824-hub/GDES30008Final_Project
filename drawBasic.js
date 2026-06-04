@@ -4,7 +4,10 @@ let stickCenterY = 385;
 let finishAnimation = false;
 let finishAlpha = 0;
 let finishTextY = 0;
-
+let questionCharIndex = 0;
+let questionTypingSpeed = 0.15;
+let lastQuestionIndex = -1;
+let fullQuestion;
 function drawStick() {
     push();
     translate(stickCenterX, stickCenterY + sceneOffsetY);

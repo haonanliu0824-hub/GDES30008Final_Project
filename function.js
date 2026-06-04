@@ -159,13 +159,28 @@ function draw() {
     drawRains();
 }
 function drawQuestion(queIndex, tim) {
+    // 如果换了新问题，就重新从第 0 个字开始显示
+    if (lastQuestionIndex !== queIndex) {
+        questionCharIndex = 0;
+        lastQuestionIndex = queIndex;
+    }
+
+    fullQuestion = questions[queIndex];
+
+    // 每一帧增加一点字符数量
+    if (questionCharIndex < fullQuestion.length) {
+        questionCharIndex += questionTypingSpeed;
+    }
+
+    let shownQuestion = fullQuestion.substring(0, questionCharIndex);
+
     fill("rgba(60, 245, 245, 1)");
     textSize(40);
     textAlign(CENTER, CENTER);
     textFont("fantasy");
     textStyle(BOLD);
-    text(questions[queIndex], width / 2, 100);
-    text(questions[queIndex], width / 2, 100);
+
+    text(shownQuestion, width / 2, 100);
 
     // options
     let centerX = width / 2;
@@ -178,10 +193,13 @@ function drawQuestion(queIndex, tim) {
     textAlign(CENTER, CENTER);
 
     text("Me", centerX - 320, optionY + 5);
+
     fill("rgba(241, 252, 255, 1)");
     drawAnswer(centerX, optionY);
+
     stroke("rgba(55, 217, 55, 1)");
     strokeWeight(3);
+    fill("rgba(255, 255, 255, 1)");
     text("The Other Side", centerX + 275, optionY + 5);
 }
 function drawAnswer(centerX, optionY){
@@ -486,6 +504,7 @@ function userChooseAnswer() {
     let optionY = 180;
 
     for (let i = 0; i < answerOptions.length; i++) {
+        
         let option = answerOptions[i];
 
         let x = centerX + option.offsetX;
@@ -495,6 +514,9 @@ function userChooseAnswer() {
 
         if (d < option.currentSize / 2) {
             selectedOption = i;
+            if (questionCharIndex < fullQuestion.length) {
+                return false;
+            }
             let stoneType;
             if (option.value === 2) {   
                 stoneType = "medium";
