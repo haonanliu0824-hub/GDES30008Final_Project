@@ -3,6 +3,7 @@ let rainSpeed = 6;
 let rainInfor = {rainDensity: 200, rainAngle: -0.4, rainSpeed:10, rainLength:0, thickness:3};
 let rainAlpha = 160;
 let targetAlpha = 0.4;
+let sunMoveT = 0;
 // parameter that control the background
 
 
@@ -108,5 +109,61 @@ function drawRain(infor){
     infor.y += rainSpeed;
     if (infor.y > height){
         infor.y = random(-height, -20);
+    }
+}
+
+function drawSunAndMoon() {
+    let angleStrength = abs(targetAngle);
+
+    // 太阳移动进度：0 ~ 0.2 之间从左上角移动到右上角
+    let targetSunT = map(angleStrength, 0, 0.2, 0, 1);
+    targetSunT = constrain(targetSunT, 0, 1);
+
+    //control the speed of sun
+    sunMoveT = lerp(sunMoveT, targetSunT, 0.01);
+    let sunX = lerp(100, width - 120, sunMoveT);
+    let sunY = lerp(200, 50, sunMoveT);
+
+    //show sun when background not dark
+    let sunAlpha = 255;
+
+    if (angleStrength > 0.2) {
+        sunAlpha = map(angleStrength, 0.2, 0.5, 255, 0);
+        sunAlpha = constrain(sunAlpha, 0, 255);
+    }
+
+    //draw sun
+    if (sunAlpha > 1) {
+        noStroke();
+
+        //sun shadow
+        fill(255, 180, 60, sunAlpha * 0.25);
+        circle(sunX, sunY, 120);
+
+        fill(255, 210, 80, sunAlpha * 0.45);
+        circle(sunX, sunY, 85);
+
+        //sun body
+        fill(255, 235, 120, sunAlpha);
+        circle(sunX, sunY, 55);
+    }
+
+    //moon
+    let moonAlpha = map(angleStrength, 0.2, 0.5, 0, 255);
+    moonAlpha = constrain(moonAlpha, 0, 255);
+
+    if (moonAlpha > 1) {
+        let moonX = 100;
+        let moonY = 90;
+
+        noStroke();
+
+        // moon body part
+        fill(235, 240, 255, moonAlpha);
+        circle(moonX, moonY, 75);
+
+        // use circle to make the effect of moon
+        fill(bgColor);
+        circle(moonX + 28, moonY - 5, 72);
     }
 }

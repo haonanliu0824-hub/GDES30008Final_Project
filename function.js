@@ -91,10 +91,14 @@ let answerOptions = [
 function preload() {
     neutral = loadImage("character/Neutral.png");
     seaSound = loadSound("audio/sea.wav");
+    keySound = loadSound("audio/keyborad.mp3")
 }
 
 function setup() {
-
+    userStartAudio();
+    if (!seaSound.isPlaying()) {
+        seaSound.loop();
+    }
     createCanvas(windowWidth, windowHeight);
     seaTop += height;
     pixelDensity(window.devicePixelRatio);
@@ -134,6 +138,7 @@ function draw() {
         drawFinishAnimation();
     } else {
         if (endAnimation) {
+            drawSunAndMoon();
             drawQuestion(queIndex, 0);
         }
     }
@@ -156,10 +161,12 @@ function draw() {
 
     drawStick();
     drawSea();
+    
     drawRains();
+
 }
 function drawQuestion(queIndex, tim) {
-    // 如果换了新问题，就重新从第 0 个字开始显示
+    // new question new index
     if (lastQuestionIndex !== queIndex) {
         questionCharIndex = 0;
         lastQuestionIndex = queIndex;
@@ -167,9 +174,15 @@ function drawQuestion(queIndex, tim) {
 
     fullQuestion = questions[queIndex];
 
-    // 每一帧增加一点字符数量
+    // add word gradually
     if (questionCharIndex < fullQuestion.length) {
         questionCharIndex += questionTypingSpeed;
+        if (!keySound.isPlaying()) {
+            keySound.loop();
+        }
+
+    } else {
+        keySound.stop();
     }
 
     let shownQuestion = fullQuestion.substring(0, questionCharIndex);
@@ -300,7 +313,7 @@ function drawStone(x, y, s, type, r) {
 
     endShape(CLOSE);
 
-    // 高光
+    // highlight
     noStroke();
     fill(255, 255, 255, 45);
 
@@ -312,7 +325,7 @@ function drawStone(x, y, s, type, r) {
         ellipse(60, 5, 55, 15);
     }
 
-    // 暗部
+    // dark side
     fill(90, 75, 60, 45);
 
     if (type === "big") {
@@ -323,7 +336,7 @@ function drawStone(x, y, s, type, r) {
         ellipse(110, 28, 80, 18);
     }
 
-    // 小斑点
+    // small dot on stone
     fill(100, 85, 70, 80);
 
     if (type === "big") {
@@ -340,7 +353,7 @@ function drawStone(x, y, s, type, r) {
         ellipse(150, 15, 8, 5);
     }
 
-    // 裂纹
+    // 
     stroke(90, 75, 60, 90);
     strokeWeight(1.5);
 
@@ -483,12 +496,9 @@ function mouseDragged() {
 }
 
 function mousePressed() {
-    userStartAudio();
+    
     if (!startAnimation && !finishAnimation) {
         userChooseAnswer();
-    }
-    if (!seaSound.isPlaying()) {
-        seaSound.loop();
     }
 
     if (finishAlpha > 250) {
@@ -514,9 +524,9 @@ function userChooseAnswer() {
 
         if (d < option.currentSize / 2) {
             selectedOption = i;
-            if (questionCharIndex < fullQuestion.length) {
-                return false;
-            }
+            // if (questionCharIndex < fullQuestion.length) {
+            //     return false;
+            // }
             let stoneType;
             if (option.value === 2) {   
                 stoneType = "medium";
@@ -604,8 +614,7 @@ function userChooseAnswer() {
                 finishTextY = height + 80;
         
             }
-            console.log("selected value:", option.value);
-            console.log("left:", left, "right:", right);
+
 
             return true;
         }
