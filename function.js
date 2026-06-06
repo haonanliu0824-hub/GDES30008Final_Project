@@ -56,9 +56,10 @@ let offsetY = 0;
 
 let alpha = 0;
 let allSet = false;
-let startAnimation = false;
-let endAnimation = true;
-
+let startAnimation = true;
+let endAnimation = false;
+let lastLeftStoneType = "";
+let lastRightStoneType = "";
 // stick center position
 
 let maxAngle = 0.5;
@@ -92,6 +93,9 @@ function preload() {
     neutral = loadImage("character/Neutral.png");
     seaSound = loadSound("audio/sea.wav");
     keySound = loadSound("audio/keyborad.mp3")
+    stoneImg = loadImage("img/bigRock.png");
+    supportRock = loadImage("img/supportRock.png");
+    mediumRock = loadImage("img/mediumRock.png");
 }
 
 function setup() {
@@ -119,6 +123,8 @@ function setup() {
 function draw() {
     windowResized(windowHeight+sceneOffsetY);
     updateBalanceAngle(left, right);
+
+    
 
     angle = lerp(angle, targetAngle, 0.01);
 
@@ -151,8 +157,8 @@ function draw() {
     rect(0, height / 1.2, width, height / 2);
 
     drawItems();
-    drawRock();
-
+    // drawRock();
+    image(stoneImg, 100, height - 200, 700, 300);
     drawCentralBall();
 
     if (abs(angle - targetAngle) < 0.01 && first) {
@@ -256,7 +262,7 @@ function drawStartAnimation() {
     textFont("fantasy");
     textStyle(BOLD);
     text("The Weight of What Was Left Unsaid", 600, 100);
-    text("Author: Haonan Liu   Yuqing Fei ⛄️", 600, 180);
+    text("Author: Haonan Liu   Yuqing Fei", 600, 180);
 
     if (alpha < 255 && startAnimation) {
         alpha += 1;
@@ -273,7 +279,7 @@ function drawStartAnimation() {
     }
 }
 
-function drawStone(x, y, s, type, r) {
+function drawStone(x, y, s, type, r, offset) {
     push();
 
     translate(x, y);
@@ -283,91 +289,16 @@ function drawStone(x, y, s, type, r) {
     stroke("rgba(255, 246, 238, 0.85)");
     strokeWeight(3);
     fill("rgba(255, 237, 202, 1)");
-
-    beginShape();
     if (type === "big") {
-        vertex(0, 10);
-        bezierVertex(20, -15, 55, -28, 95, -26);
-        bezierVertex(150, -24, 230, -22, 310, -24);
-        bezierVertex(350, -24, 395, -10, 410, 15);
-        bezierVertex(420, 42, 360, 62, 285, 68);
-        bezierVertex(200, 74, 90, 68, 25, 52);
-        bezierVertex(-8, 40, -10, 22, 0, 10);
     } else if (type === "medium") {
-        vertex(0, 8);
-        bezierVertex(15, -12, 42, -22, 72, -21);
-        bezierVertex(115, -20, 170, -18, 225, -19);
-        bezierVertex(255, -19, 290, -8, 302, 12);
-        bezierVertex(312, 34, 272, 52, 215, 58);
-        bezierVertex(145, 64, 72, 58, 18, 45);
-        bezierVertex(-6, 34, -7, 18, 0, 8);
+        image(mediumRock, 0, offset, 400,200);
     } else if (type === "small") {
-        vertex(0, 6);
-        bezierVertex(10, -8, 28, -16, 48, -15);
-        bezierVertex(78, -14, 112, -13, 145, -14);
-        bezierVertex(165, -14, 188, -6, 196, 8);
-        bezierVertex(202, 24, 178, 38, 140, 43);
-        bezierVertex(96, 48, 46, 44, 12, 34);
-        bezierVertex(-4, 25, -5, 13, 0, 6);
+        image(mediumRock, 0, -16, 250,100);
     }
 
-    endShape(CLOSE);
 
-    // highlight
-    noStroke();
-    fill(255, 255, 255, 45);
 
-    if (type === "big") {
-        ellipse(120, 5, 120, 25);
-    } else if (type === "medium") {
-        ellipse(90, 5, 85, 20);
-    } else if (type === "small") {
-        ellipse(60, 5, 55, 15);
-    }
-
-    // dark side
-    fill(90, 75, 60, 45);
-
-    if (type === "big") {
-        ellipse(240, 45, 180, 30);
-    } else if (type === "medium") {
-        ellipse(170, 38, 120, 25);
-    } else if (type === "small") {
-        ellipse(110, 28, 80, 18);
-    }
-
-    // small dot on stone
-    fill(100, 85, 70, 80);
-
-    if (type === "big") {
-        ellipse(70, 22, 12, 8);
-        ellipse(180, 30, 10, 7);
-        ellipse(310, 18, 14, 9);
-    } else if (type === "medium") {
-        ellipse(55, 20, 10, 7);
-        ellipse(135, 28, 9, 6);
-        ellipse(230, 18, 11, 7);
-    } else if (type === "small") {
-        ellipse(35, 16, 8, 5);
-        ellipse(90, 22, 7, 5);
-        ellipse(150, 15, 8, 5);
-    }
-
-    // 
-    stroke(90, 75, 60, 90);
-    strokeWeight(1.5);
-
-    if (type === "big") {
-        line(120, 12, 140, 28);
-        line(140, 28, 132, 40);
-    } else if (type === "medium") {
-        line(90, 12, 105, 24);
-        line(105, 24, 98, 34);
-    } else if (type === "small") {
-        line(65, 10, 76, 20);
-        line(76, 20, 70, 28);
-    }
-
+    
     pop();
 }
 
@@ -431,7 +362,7 @@ function drawItems() {
                 item.falling = false;
                 item.onStick = true;
             }
-            item.func(item.x, item.y + sceneOffsetY, item.scale, item.type, 0);
+            item.func(item.x, item.y + sceneOffsetY, item.scale, item.type, 0, item.off);
         } else if (item.onStick) {
             let localX = item.x - stickCenterX;
             let localY = item.y - stickCenterY;
@@ -443,9 +374,9 @@ function drawItems() {
                 stickCenterY + localX * sin(angle) + localY * cos(angle);
             
             drawY += sceneOffsetY;
-            item.func(drawX, drawY, item.scale, item.type, angle);
+            item.func(drawX, drawY, item.scale, item.type, angle, item.off);
         } else {
-            item.func(item.x, item.y, item.scale, item.type, 0);
+            item.func(item.x, item.y, item.scale, item.type, 0, item.new, item.off);
         }
         count++;
     }
@@ -524,17 +455,24 @@ function userChooseAnswer() {
 
         if (d < option.currentSize / 2) {
             selectedOption = i;
-            // if (questionCharIndex < fullQuestion.length) {
-            //     return false;
-            // }
+            if (questionCharIndex < fullQuestion.length) {
+                return false;
+            }
             let stoneType;
+            let rockOffset;
             if (option.value === 2) {   
                 stoneType = "medium";
             } else {
                 stoneType = "small";
             }
-            
+
             if (option.pos == "left") {
+                if (lastLeftStoneType == "small"){
+                    rockOffset = -80;
+                } else {
+                    rockOffset = -90;
+                }
+                lastLeftStoneType = stoneType;
                 left += option.value;
                 let stoneX = random(leftInfor.prev,leftInfor.last);
                 stoneX = constrain(stoneX, 250, 550 - 120);
@@ -564,11 +502,19 @@ function userChooseAnswer() {
                     left: true,
                     right: false,
                     type: stoneType,
-                    r: 0
+                    r: 0,
+                    new: true,
+                    off: rockOffset
                 });
                 leftCount++;
 
             } else if (option.pos == "right") {
+                if (lastRightStoneType == "small"){
+                    rockOffset = -80;
+                } else {
+                    rockOffset = -80;
+                }
+                lastRightStoneType = stoneType;
                 right += option.value;
                 let stoneX = random(rightInfor.prev,rightInfor.last);
                 stoneX = constrain(stoneX, 700, 900);
@@ -582,7 +528,7 @@ function userChooseAnswer() {
                 
         
                 if (rightCount == 1) {
-                    rightYRow += 30;
+                    rightYRow += 23;
                     rightCount = 0;
                 } 
                 items.push({
@@ -599,7 +545,9 @@ function userChooseAnswer() {
                     left: false,
                     right: true,
                     type: stoneType,
-                    r: 0
+                    r: 0,
+                    new: true,
+                    off: rockOffset
                 });
                 rightCount++;
             }
