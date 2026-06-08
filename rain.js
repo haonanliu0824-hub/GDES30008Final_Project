@@ -115,7 +115,7 @@ function drawRain(infor){
 function drawSunAndMoon() {
     let angleStrength = abs(targetAngle);
 
-    // 太阳移动进度：0 ~ 0.2 之间从左上角移动到右上角
+    // 
     let targetSunT = map(angleStrength, 0, 0.2, 0, 1);
     targetSunT = constrain(targetSunT, 0, 1);
 

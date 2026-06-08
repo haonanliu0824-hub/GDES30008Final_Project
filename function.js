@@ -7,28 +7,18 @@ let questions = [
     "Who hides their true feelings more often?",
     "Who is more afraid of rejection?",
     "Who finds it easier to forgive?",
-    "Who invests more time in the relationship?",
-    "Who compromises more often?",
     "Who has a stronger need to be understood?",
     "Who relies more on the sense of security this relationship provides?",
     "Who spends more time guessing what the other person is thinking?",
     "Who is more likely to feel jealous?",
     "Who pretends to be okay more often?",
     "Who cares more about the other person's opinion?",
-    "Who is more likely to hide their disappointment?",
     "Who is more afraid of the relationship ending?",
     "Who would be more willing to start over?",
-    "If only one person could stay, who would stay?",
     "If this relationship were a scale, who has been holding it steady?",
-    "Who carries more unseen weight?",
-    "Who leaves more things unsaid?",
-    "Who has more messages that were never sent?",
     "Who still holds onto expectations that no longer matter?",
     "Who wishes they could turn back time more often?",
-    "Who trusts the other person more?",
     "Who needs forgiveness more?",
-    "Who finds it harder to let go?",
-    "Who has already left emotionally, but never said it out loud?"
 ];
 let queIndex = 0;
 let items = [];
@@ -629,7 +619,7 @@ function drawSea() {
     waveY -= 0.1;
 
     if (waveY < seaTop) {
-        waveY = height - 30;
+        waveY = height - 30 - sceneOffsetY;
     }
 }
 
