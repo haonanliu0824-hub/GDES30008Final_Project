@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
@@ -12,7 +13,21 @@
     <script language="javascript" type="text/javascript" src="function.js"></script>
 </head>
 <body>
-    
+    <script>
+    // banned zoom
+    window.addEventListener("wheel", function (e) {
+        if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        }
+    }, { passive: false });
+
+    window.addEventListener("keydown", function (e) {
+        if ((e.ctrlKey || e.metaKey) &&
+            (e.key === "+" || e.key === "-" || e.key === "=" || e.key === "0")) {
+        e.preventDefault();
+        }
+    });
+</script>
 
 
 

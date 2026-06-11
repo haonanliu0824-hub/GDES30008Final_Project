@@ -22,7 +22,7 @@ let questions = [
 ];
 let queIndex = 0;
 let items = [];
-
+let baseHeight;
 let angle = 0;
 let targetAngle = 0.06;
 let speed = 0.005;
@@ -93,7 +93,8 @@ function setup() {
     if (!seaSound.isPlaying()) {
         seaSound.loop();
     }
-    createCanvas(windowWidth, windowHeight);
+    baseHeight = window.innerHeight;
+    createCanvas(window.innerWidth, baseHeight);
     seaTop += height;
     pixelDensity(window.devicePixelRatio);
     initialRain(rainInfor); 
@@ -111,7 +112,7 @@ function setup() {
 }
 
 function draw() {
-    windowResized(windowHeight+sceneOffsetY);
+    // windowResized(windowHeight+sceneOffsetY);
     updateBalanceAngle(left, right);
 
     
@@ -186,7 +187,7 @@ function drawQuestion(queIndex, tim) {
     fill("rgba(60, 245, 245, 1)");
     textSize(40);
     textAlign(CENTER, CENTER);
-    textFont("fantasy");
+    textFont("Georgia");
     textStyle(BOLD);
 
     text(shownQuestion, width / 2, 100);
@@ -249,7 +250,7 @@ function drawStartAnimation() {
     noStroke();
     textSize(60);
     textAlign(CENTER, CENTER);
-    textFont("fantasy");
+    textFont("Georgia");
     textStyle(BOLD);
     text("The Weight of What Was Left Unsaid", 600, 100);
     text("Author: Haonan Liu   Yuqing Fei", 600, 180);
@@ -623,6 +624,7 @@ function drawSea() {
     }
 }
 
-function windowResized(winheight) {
-  resizeCanvas(windowWidth, winheight);
+function windowResized() {
+    baseHeight = window.innerHeight;
+    resizeCanvas(window.innerWidth, baseHeight + sceneOffsetY);
 }
