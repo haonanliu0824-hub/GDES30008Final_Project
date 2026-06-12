@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Document</title>
+    <title>Balance Weight</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/addons/p5.sound.min.js"></script>
@@ -13,23 +13,30 @@
     <script language="javascript" type="text/javascript" src="function.js"></script>
 </head>
 <body>
+
+    <div id="zoom-warning">
+        Your browser zoom is not 100%. May affect the outcome, Press Command + 0 to reset.
+    </div>
     <script>
-    // banned zoom
-    window.addEventListener("wheel", function (e) {
-        if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
+        function getBrowserZoom() {
+            return Math.round((window.outerWidth / window.innerWidth) * 100);
         }
-    }, { passive: false });
 
-    window.addEventListener("keydown", function (e) {
-        if ((e.ctrlKey || e.metaKey) &&
-            (e.key === "+" || e.key === "-" || e.key === "=" || e.key === "0")) {
-        e.preventDefault();
+        function checkZoom() {
+            const warning = document.getElementById("zoom-warning");
+            const zoom = getBrowserZoom();
+
+            if (Math.abs(zoom - 100) > 5) {
+            warning.style.display = "block";
+            warning.innerText = `Note: Your browser zoom is not set to 100%. This may affect the visual layout. Press Command + 0 to reset.`;
+            } else {
+            warning.style.display = "none";
+            }
         }
-    });
-</script>
 
-
+        window.addEventListener("load", checkZoom);
+        window.addEventListener("resize", checkZoom);
+    </script>
 
 </body>
 </html>

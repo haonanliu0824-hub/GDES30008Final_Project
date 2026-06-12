@@ -69,7 +69,7 @@ let leftCount = 0;
 let leftYRow = 0;
 let rightYRow = 0;
 let rightCount = 0;
-let seaTop = 80;
+let seaTop;
 let leftInfor = {prev:0, last:0};
 let rightInfor = {prev:0, last:0};
 let answerOptions = [
@@ -81,7 +81,7 @@ let answerOptions = [
 ];
 function preload() {
     neutral = loadImage("character/Neutral.png");
-    seaSound = loadSound("audio/sea.wav");
+    seaSound = loadSound("audio/sea.mp3");
     keySound = loadSound("audio/keyborad.mp3")
     stoneImg = loadImage("img/bigRock.png");
     supportRock = loadImage("img/supportRock.png");
@@ -95,7 +95,7 @@ function setup() {
     }
     baseHeight = window.innerHeight;
     createCanvas(window.innerWidth, baseHeight);
-    seaTop += height;
+    seaTop = 580;
     pixelDensity(window.devicePixelRatio);
     initialRain(rainInfor); 
     bgColor = color("#1d81f2");
@@ -149,7 +149,7 @@ function draw() {
 
     drawItems();
     // drawRock();
-    image(stoneImg, 100, height - 200, 700, 300);
+    image(stoneImg, 100, 450 + sceneOffsetY, 700, 300);
     drawCentralBall();
 
     if (abs(angle - targetAngle) < 0.01 && first) {
@@ -185,7 +185,7 @@ function drawQuestion(queIndex, tim) {
     let shownQuestion = fullQuestion.substring(0, questionCharIndex);
 
     fill("rgba(60, 245, 245, 1)");
-    textSize(40);
+    textSize(35);
     textAlign(CENTER, CENTER);
     textFont("Georgia");
     textStyle(BOLD);
@@ -199,7 +199,7 @@ function drawQuestion(queIndex, tim) {
     stroke("rgba(55, 217, 55, 1)");
     strokeWeight(3);
     fill("rgba(255, 255, 255, 1)");
-    textSize(40);
+    textSize(35);
     textAlign(CENTER, CENTER);
 
     text("Me", centerX - 320, optionY + 5);
@@ -282,9 +282,9 @@ function drawStone(x, y, s, type, r, offset) {
     fill("rgba(255, 237, 202, 1)");
     if (type === "big") {
     } else if (type === "medium") {
-        image(mediumRock, 0, offset, 400,200);
+        image(mediumRock, 0, 0, 400,200);
     } else if (type === "small") {
-        image(mediumRock, 0, -16, 250,100);
+        image(mediumRock, 0, 0, 250,100);
     }
 
 
@@ -451,17 +451,24 @@ function userChooseAnswer() {
             }
             let stoneType;
             let rockOffset;
+            
             if (option.value === 2) {   
                 stoneType = "medium";
+                rockOffset = -55;
             } else {
                 stoneType = "small";
+                rockOffset = -20;
             }
 
             if (option.pos == "left") {
-                if (lastLeftStoneType == "small"){
-                    rockOffset = -80;
-                } else {
-                    rockOffset = -90;
+                if (lastLeftStoneType == "small" && stoneType == "medium"){
+                    rockOffset = -55;
+                } else if (lastLeftStoneType == "medium" && stoneType == "medium"){
+                    rockOffset = -60;
+                } else if (lastLeftStoneType == "medium"  && stoneType == "small"){
+                    rockOffset = -30;
+                } else if (lastLeftStoneType == "small"  && stoneType == "small"){
+                    rockOffset = -20;
                 }
                 lastLeftStoneType = stoneType;
                 left += option.value;
@@ -476,7 +483,7 @@ function userChooseAnswer() {
                 }
                 
                 if (leftCount == 1) {
-                    leftYRow += 23;
+                    leftYRow += 20;
                     leftCount = 0;
                 } 
                 
@@ -484,7 +491,7 @@ function userChooseAnswer() {
                     func: drawStone,
                     x: stoneX,
                     y: optionY,
-                    targetY: 350 - leftYRow,
+                    targetY: 350 - leftYRow + rockOffset,
                     realX: stoneX,
                     realY: 350 + sceneOffsetY - leftYRow,
                     scale: 0.5,
@@ -500,10 +507,14 @@ function userChooseAnswer() {
                 leftCount++;
 
             } else if (option.pos == "right") {
-                if (lastRightStoneType == "small"){
-                    rockOffset = -80;
-                } else {
-                    rockOffset = -80;
+                if (lastRightStoneType == "small"  && stoneType == "medium"){
+                    rockOffset = -55;
+                } else if (lastRightStoneType == "medium"  && stoneType == "medium"){
+                    rockOffset = -60;
+                } else if (lastRightStoneType == "medium"  && stoneType == "small"){
+                    rockOffset = -30;
+                } else if (lastRightStoneType == "small"  && stoneType == "small"){
+                    rockOffset = -20;
                 }
                 lastRightStoneType = stoneType;
                 right += option.value;
@@ -519,14 +530,14 @@ function userChooseAnswer() {
                 
         
                 if (rightCount == 1) {
-                    rightYRow += 23;
+                    rightYRow += 20;
                     rightCount = 0;
                 } 
                 items.push({
                     func: drawStone,
                     x: stoneX,
                     y: optionY - sceneOffsetY,
-                    targetY: 350 - rightYRow,
+                    targetY: 350 - rightYRow + rockOffset,
                     realX: stoneX,
                     realY: 350 + sceneOffsetY - rightYRow,
                     scale: 0.5,
@@ -620,7 +631,7 @@ function drawSea() {
     waveY -= 0.1;
 
     if (waveY < seaTop) {
-        waveY = height - 30 - sceneOffsetY;
+        waveY = 620 - sceneOffsetY;
     }
 }
 

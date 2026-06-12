@@ -1,6 +1,6 @@
 let sceneOffsetY = 0;
 let stickCenterX = 670;
-let stickCenterY = 385;
+let stickCenterY = 378;
 let finishAnimation = false;
 let finishAlpha = 0;
 let finishTextY = 0;
@@ -30,7 +30,7 @@ function drawStick() {
 
 function drawCentralBall(){
 
-    image(supportRock, 500, height - 250, 300, 200);
+    image(supportRock, 500, 380 + sceneOffsetY, 300, 200);
     
 }
 
